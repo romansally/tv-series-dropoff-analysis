@@ -117,7 +117,7 @@ South Park, Rick & Morty, Adventure Time, Regular Show, Grey's Anatomy, Supernat
 6. Exclude specials: drop rows where seasonNumber is NULL or 0.
 7. Drop rows with missing seasonNumber or episodeNumber after parsing.
 8. Verify remaining rows have titleType = "tvEpisode" only.
-9. Export clean CSVs to /data (gitignored) and generate synthetic sample to data/sample/ (committed).
+9. Export clean CSVs to /data (gitignored) and generate synthetic sample to data/sample/ (committed). Synthetic sample must be generated from scratch (no sampling IMDb rows).
 
 ### IMDb tconst IDs for Selected Shows
 These need to be looked up on IMDb, but the expected IDs are:
