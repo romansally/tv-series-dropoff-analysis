@@ -1,0 +1,37 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# IMDb raw data
+*.tsv
+*.tsv.gz
+
+# Data directory — ignore everything except sample/
+data/*
+!data/sample/
+
+# DuckDB files
+*.db
+*.duckdb
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.log
