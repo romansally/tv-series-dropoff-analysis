@@ -40,6 +40,7 @@ IMPORTANT: Verify these tconst IDs against imdb.com before running the pipeline.
   Engagement-weighted quality proxy. LOG dampens outlier vote counts.
 - **Durability Index:** Count of seasons where rolling_3_season_avg >= series_avg.
   Measures sustained above-average quality using smoothed trend, not raw season noise.
+- **Series avg override (approved):** series_avg = AVG(weighted_rating) OVER (PARTITION BY show_tconst), i.e., unweighted average of season-level weighted ratings. Applies to shark-jump detection AND Durability Index. Overrides step 2 of the Shark-Jump Algorithm (which specified episode-level weighted avg). Approved during Phase 2 planning.
 
 ## Shark-Jump Algorithm (exact specification)
 1. For each season of a show, compute season_weighted_avg using the weighted
