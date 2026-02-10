@@ -190,17 +190,19 @@ def run_default_mode():
     ep_basics_dedup = ep_basics.drop_duplicates(subset=["tconst"])
     ep_basics_map = dict(zip(ep_basics_dedup["tconst"], ep_basics_dedup["titleType"]))
 
-    # Check each episode in the joined set
-    before = len(joined)
-    valid_mask = joined["episode_tconst"].map(
-        lambda x: ep_basics_map.get(x) == "tvEpisode"
-    )
-    dropped_titletype = (~valid_mask).sum()
-    joined = joined[valid_mask].copy()
-    print(
-        f"  Dropped {dropped_titletype} episodes "
-        "(missing basics row or titleType != tvEpisode)"
-    )
+    # Check each episode in the joined set (split missing-basics vs wrong-titleType logs)
+    title_type = joined["episode_tconst"].map(ep_basics_map)
+
+    missing_basics = int(title_type.isna().sum())
+    wrong_title_type = int((~title_type.isna() & (title_type != "tvEpisode")).sum())
+
+    # Keep only verified tvEpisode (this also drops missing basics rows)
+    joined = joined[title_type == "tvEpisode"].copy()
+
+    if missing_basics:
+        print(f"  Dropped {missing_basics} episodes with missing basics row / NULL titleType")
+    if wrong_title_type:
+        print(f"  Dropped {wrong_title_type} episodes with titleType != tvEpisode")
 
     # ── Step f: Prepare and write outputs ─────────────────────
     print("\nStep f: Preparing outputs...")
