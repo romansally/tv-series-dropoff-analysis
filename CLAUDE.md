@@ -130,25 +130,19 @@ Do not modify this algorithm without explicit approval.
   diminishing returns of licensing additional seasons.
 
 ## Commands
-These commands are defined as the project is built. Not all exist at the start.
 
-### Available now:
-- (none yet — project is in setup phase)
+### Sample (synthetic fixtures)
+- Run Phase 1 pipeline: python pipeline/01_subset_imdb.py --sample
+- Run Phase 2 SQL: python pipeline/02_run_sql.py --sample
+- Validate all: python qa/validate.py --sample --all
 
-### To be created in Phase 1 (Python pipeline):
-- Run pipeline on full data: python pipeline/01_subset_imdb.py
-- Run pipeline on sample: python pipeline/01_subset_imdb.py --sample
-- Generate synthetic test data: python qa/fixtures/generate_synthetic.py
+### Full (real IMDb data — requires TSVs in data/raw/)
+- Run Phase 1 pipeline: python pipeline/01_subset_imdb.py
+- Run Phase 2 SQL: python pipeline/02_run_sql.py
+- Validate all: python qa/validate.py --all
 
-### To be created in Phase 2 (SQL):
-- Run SQL queries: python pipeline/02_run_sql.py (or manual DuckDB CLI)
-
-### To be created alongside Phase 1–2 (QA):
-- Run QA validation: python qa/validate.py
-- Run all checks: python qa/validate.py --all
-  (This is the "definition of done" command. It validates: episode counts,
-  weighted rating spot-checks, no duplicate tconsts, shark-jump sanity,
-  vote count reasonableness.)
+### Utility (not part of standard run)
+- Regenerate synthetic fixtures: python qa/fixtures/generate_synthetic.py
 
 ## Definition of Done
 A phase is NOT done until qa/validate.py passes with zero errors.
