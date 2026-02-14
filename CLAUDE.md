@@ -134,11 +134,13 @@ Do not modify this algorithm without explicit approval.
 ### Sample (synthetic fixtures)
 - Run Phase 1 pipeline: python pipeline/01_subset_imdb.py --sample
 - Run Phase 2 SQL: python pipeline/02_run_sql.py --sample
+- Generate QA workbook: python pipeline/03_generate_qa_workbook.py --sample
 - Validate all: python qa/validate.py --sample --all
 
 ### Full (real IMDb data — requires TSVs in data/raw/)
 - Run Phase 1 pipeline: python pipeline/01_subset_imdb.py
 - Run Phase 2 SQL: python pipeline/02_run_sql.py
+- Generate QA workbook: python pipeline/03_generate_qa_workbook.py
 - Validate all: python qa/validate.py --all
 
 ### Utility (not part of standard run)

@@ -25,6 +25,9 @@ venv/
 .vscode/settings.json
 .idea/
 
+# QA workbooks (may contain real IMDb-derived data)
+excel/qa_reconciliation*.xlsx
+
 # OS
 .DS_Store
 Thumbs.db
