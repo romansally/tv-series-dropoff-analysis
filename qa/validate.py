@@ -256,6 +256,41 @@ PHASE2_KPI_COLS = [
 ]
 
 
+def recompute_shark_jump(ep_df: pd.DataFrame) -> dict:
+    """Independently detect shark-jump seasons from episode-level data.
+
+    Pure-pandas implementation of the CLAUDE.md Shark-Jump Algorithm with
+    both approved overrides: series_avg is the unweighted average of
+    season-level weighted ratings, and rolling_3_season_avg uses an
+    expanding window for Seasons 1-2. Returns
+    {show_tconst: shark_jump_season or None}.
+    """
+    results = {}
+    for tconst, grp in ep_df.groupby("show_tconst"):
+        season = (
+            grp.assign(rating_x_votes=grp["avg_rating"] * grp["num_votes"])
+            .groupby("season_num")
+            .agg(
+                rating_x_votes=("rating_x_votes", "sum"),
+                votes=("num_votes", "sum"),
+            )
+            .sort_index()
+        )
+        weighted = season["rating_x_votes"] / season["votes"]
+        series_avg = weighted.mean()
+        rolling = weighted.rolling(window=3, min_periods=1).mean()
+
+        below = (rolling < series_avg).tolist()
+        seasons = list(weighted.index)
+        shark = None
+        for i in range(len(seasons) - 1):
+            if below[i] and below[i + 1] and seasons[i + 1] == seasons[i] + 1:
+                shark = int(seasons[i])
+                break
+        results[tconst] = shark
+    return results
+
+
 def validate_phase2(data_dir: Path, is_sample: bool, runner: CheckRunner):
     """Run Phase 2 checks on SQL outputs in data/."""
     print("\n── Phase 2 Checks ──\n")
@@ -415,49 +450,42 @@ def validate_phase2(data_dir: Path, is_sample: bool, runner: CheckRunner):
             f"{int(di)} seasons" if not pd.isna(di) else "NULL",
         )
 
-    # ── Check 19: Off-by-one verification (--sample only) ────
-    if is_sample:
-        print("\nCheck 19: Off-by-one verification (sample only)")
-        # At least one show must trigger shark-jump
-        triggered = shark_df[shark_df["shark_jump_season"].notna()]
+    # ── Check 19: Independent shark-jump recomputation ────────
+    print("\nCheck 19: Independent shark-jump recomputation")
+    ep_path = data_dir / "episodes_filtered.csv"
+    if not ep_path.exists():
         runner.check(
-            "at least one show triggers shark-jump",
+            "episodes_filtered.csv available for recompute",
+            False,
+            f"not found: {ep_path}",
+        )
+    else:
+        ep_df = pd.read_csv(ep_path)
+        recomputed = recompute_shark_jump(ep_df)
+        exported = {
+            row["show_tconst"]: (
+                None
+                if pd.isna(row["shark_jump_season"])
+                else int(row["shark_jump_season"])
+            )
+            for _, row in shark_df.iterrows()
+        }
+
+        triggered = [s for s in recomputed.values() if s is not None]
+        runner.check(
+            "at least one show triggers shark-jump (recomputed)",
             len(triggered) > 0,
             f"{len(triggered)} shows triggered",
         )
 
-        # For each triggered show, verify the shark_jump_season value
-        for _, row in triggered.iterrows():
-            tconst = row["show_tconst"]
-            sj_season = int(row["shark_jump_season"])
+        for tconst in sorted(valid_shows):
             title = SHOW_IDS.get(tconst, tconst)
-
-            show_kpis = kpi_df[kpi_df["show_tconst"] == tconst].sort_values("season_num")
-
-            # Find the first season where rolling_3_season_avg < series_avg
-            # AND the next season also has rolling_3_season_avg < series_avg
-            below_seasons = []
-            for _, krow in show_kpis.iterrows():
-                if krow["rolling_3_season_avg"] < krow["series_avg"]:
-                    below_seasons.append(int(krow["season_num"]))
-
-            # Find first consecutive pair
-            expected_sj = None
-            for i in range(len(below_seasons) - 1):
-                # Check if these are consecutive in the KPI table
-                s1 = below_seasons[i]
-                s2 = below_seasons[i + 1]
-                # They must be consecutive season_nums in the data
-                all_seasons = sorted(show_kpis["season_num"].tolist())
-                idx1 = all_seasons.index(s1)
-                if idx1 + 1 < len(all_seasons) and all_seasons[idx1 + 1] == s2:
-                    expected_sj = s1
-                    break
-
+            exp = exported.get(tconst, "missing-from-export")
+            rec = recomputed.get(tconst, "no-episodes")
             runner.check(
-                f"off-by-one {title}",
-                expected_sj is not None and sj_season == expected_sj,
-                f"shark_jump_season={sj_season}, expected={expected_sj}",
+                f"shark-jump recompute {title}",
+                exp == rec,
+                f"exported={exp}, recomputed={rec}",
             )
 
     # ── Check 20: Grain check ────────────────────────────────
