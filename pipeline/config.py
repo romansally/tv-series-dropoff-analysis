@@ -18,6 +18,7 @@ SHOW_IDS = {
 RAW_DIR = Path(os.environ.get("IMDB_RAW_DIR", str(PROJECT_ROOT / "data" / "raw")))
 OUTPUT_DIR = PROJECT_ROOT / "data"
 SAMPLE_DIR = PROJECT_ROOT / "data" / "sample"
+SAMPLE_OUT_DIR = PROJECT_ROOT / "data" / "sample_out"
 DIM_SHOW_PATH = PROJECT_ROOT / "docs" / "dim_show_category.csv"
 
 # ─── IMDb TSV Filenames ──────────────────────────────────────

@@ -19,6 +19,7 @@ from pipeline.config import (
     RAW_DIR,
     OUTPUT_DIR,
     SAMPLE_DIR,
+    SAMPLE_OUT_DIR,
     EPISODES_TSV,
     RATINGS_TSV,
     BASICS_TSV,
@@ -272,8 +273,8 @@ def run_default_mode():
 
 
 def run_sample_mode():
-    """Read sample fixtures, apply validation/cleaning, write to OUTPUT_DIR."""
-    print("Running in --sample mode (reading from data/sample/)\n")
+    """Read sample fixtures, apply validation/cleaning, write to SAMPLE_OUT_DIR."""
+    print("Running in --sample mode (reading from data/sample/, writing to data/sample_out/)\n")
 
     ep_path = SAMPLE_DIR / "episodes_filtered.csv"
     shows_path = SAMPLE_DIR / "shows_metadata.csv"
@@ -359,11 +360,11 @@ def run_sample_mode():
     shows_df = shows_df[SHOWS_METADATA_COLS]
     basics_df = basics_df[EPISODES_BASICS_COLS]
 
-    # Write to output dir
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    ep_df.to_csv(OUTPUT_DIR / "episodes_filtered.csv", index=False)
-    shows_df.to_csv(OUTPUT_DIR / "shows_metadata.csv", index=False)
-    basics_df.to_csv(OUTPUT_DIR / "episodes_basics.csv", index=False)
+    # Write to sample output dir
+    SAMPLE_OUT_DIR.mkdir(parents=True, exist_ok=True)
+    ep_df.to_csv(SAMPLE_OUT_DIR / "episodes_filtered.csv", index=False)
+    shows_df.to_csv(SAMPLE_OUT_DIR / "shows_metadata.csv", index=False)
+    basics_df.to_csv(SAMPLE_OUT_DIR / "episodes_basics.csv", index=False)
 
     # Per-show summary
     print("\nFinal episode counts per show:")
@@ -371,7 +372,7 @@ def run_sample_mode():
         count = (ep_df["show_tconst"] == tconst).sum()
         print(f"  {title}: {count}")
 
-    print(f"\nOutputs written to {OUTPUT_DIR}")
+    print(f"\nOutputs written to {SAMPLE_OUT_DIR}")
 
 
 def main():

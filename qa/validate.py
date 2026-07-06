@@ -19,6 +19,7 @@ from pipeline.config import (
     SHOW_IDS,
     OUTPUT_DIR,
     SAMPLE_DIR,
+    SAMPLE_OUT_DIR,
     EPISODES_FILTERED_COLS,
     SHOWS_METADATA_COLS,
     EPISODES_BASICS_COLS,
@@ -262,9 +263,11 @@ def validate_phase2(data_dir: Path, is_sample: bool, runner: CheckRunner):
     valid_shows = set(SHOW_IDS.keys())
 
     # ── Load Phase 2 files ───────────────────────────────────
-    kpi_path = OUTPUT_DIR / "agg_season_kpis.csv"
-    shark_path = OUTPUT_DIR / "shark_jump_results.csv"
-    dur_path = OUTPUT_DIR / "durability_index.csv"
+    # Sample-mode Phase 2 outputs are routed to SAMPLE_OUT_DIR; full mode to OUTPUT_DIR.
+    phase2_dir = SAMPLE_OUT_DIR if is_sample else OUTPUT_DIR
+    kpi_path = phase2_dir / "agg_season_kpis.csv"
+    shark_path = phase2_dir / "shark_jump_results.csv"
+    dur_path = phase2_dir / "durability_index.csv"
 
     for p in [kpi_path, shark_path, dur_path]:
         if not p.exists():

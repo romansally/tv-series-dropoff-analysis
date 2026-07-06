@@ -10,6 +10,7 @@
 # Data directory — ignore everything except sample/
 data/*
 !data/sample/
+data/sample_out/
 
 # DuckDB files
 *.db

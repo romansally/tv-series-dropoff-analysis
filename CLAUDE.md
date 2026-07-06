@@ -41,6 +41,17 @@ IMPORTANT: Verify these tconst IDs against imdb.com before running the pipeline.
 - **Durability Index:** Count of seasons where rolling_3_season_avg >= series_avg.
   Measures sustained above-average quality using smoothed trend, not raw season noise.
 - **Series avg override (approved):** series_avg = AVG(weighted_rating) OVER (PARTITION BY show_tconst), i.e., unweighted average of season-level weighted ratings. Applies to shark-jump detection AND Durability Index. Overrides step 2 of the Shark-Jump Algorithm (which specified episode-level weighted avg). Approved during Phase 2 planning.
+- **Rolling 3-season avg override (approved):** rolling_3_season_avg uses
+  an expanding window for Seasons 1–2 (S1 = S1's own weighted rating;
+  S2 = mean of S1–S2), rather than being restricted to full 3-season
+  windows as literally read from Shark-Jump Algorithm step 3. This is
+  intentional: Durability Index counts S1/S2 under this window, and the
+  locked reference values (Simpsons 14, Family Guy 12, Walking Dead 7,
+  SpongeBob 6) depend on it. Changing to a strict S≥3-only window would
+  alter these numbers and requires explicit re-approval. Tableau suppresses
+  S1–S2 from the rolling-average display only (Tile 3 display calc); the
+  underlying computation and Durability Index are unchanged. Approved
+  during Phase 4 audit.
 - **Logging policy:** Pipeline + QA scripts must print only deterministic operational info (row counts, schema checks, computed outputs). No interpretive commentary, causal explanations, or "this aligns with X era" statements. Interpretation belongs in README (with correlation-not-causation language).
 
 ## Shark-Jump Algorithm (exact specification)

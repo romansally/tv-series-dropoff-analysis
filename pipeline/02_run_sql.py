@@ -15,7 +15,7 @@ import pandas as pd
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from pipeline.config import SHOW_IDS, OUTPUT_DIR, SAMPLE_DIR, DIM_SHOW_PATH
+from pipeline.config import SHOW_IDS, OUTPUT_DIR, SAMPLE_DIR, SAMPLE_OUT_DIR, DIM_SHOW_PATH
 
 SQL_DIR = PROJECT_ROOT / "sql"
 
@@ -58,6 +58,7 @@ def main():
     args = parse_args()
     mode = "sample" if args.sample else "full"
     path_map = resolve_paths(args.sample)
+    out_dir = SAMPLE_OUT_DIR if args.sample else OUTPUT_DIR
 
     print(f"=== DuckDB SQL Pipeline (mode: {mode}) ===\n")
     print("Resolved CSV paths:")
@@ -104,13 +105,13 @@ def main():
     print(f"  durability_index: {len(dur_df)} rows\n")
 
     # ── Export CSVs ──────────────────────────────────────────────
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    kpi_df.to_csv(OUTPUT_DIR / "agg_season_kpis.csv", index=False)
-    shark_df.to_csv(OUTPUT_DIR / "shark_jump_results.csv", index=False)
-    dur_df.to_csv(OUTPUT_DIR / "durability_index.csv", index=False)
+    kpi_df.to_csv(out_dir / "agg_season_kpis.csv", index=False)
+    shark_df.to_csv(out_dir / "shark_jump_results.csv", index=False)
+    dur_df.to_csv(out_dir / "durability_index.csv", index=False)
 
-    print(f"Exported CSVs to {OUTPUT_DIR}:")
+    print(f"Exported CSVs to {out_dir}:")
     print(f"  agg_season_kpis.csv    ({len(kpi_df)} rows)")
     print(f"  shark_jump_results.csv ({len(shark_df)} rows)")
     print(f"  durability_index.csv   ({len(dur_df)} rows)")

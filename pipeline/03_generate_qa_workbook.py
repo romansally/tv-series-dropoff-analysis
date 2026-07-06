@@ -18,7 +18,7 @@ from openpyxl.utils import get_column_letter
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from pipeline.config import OUTPUT_DIR, SAMPLE_DIR, DIM_SHOW_PATH
+from pipeline.config import OUTPUT_DIR, SAMPLE_DIR, SAMPLE_OUT_DIR, DIM_SHOW_PATH
 
 EXCEL_DIR = PROJECT_ROOT / "excel"
 
@@ -493,24 +493,19 @@ def write_qa_summary(ws, checks):
 def main():
     args = parse_args()
     is_sample = args.sample
-    data_dir = SAMPLE_DIR if is_sample else OUTPUT_DIR
     mode = "sample" if is_sample else "full"
 
     print(f"=== QA Workbook Generator (mode: {mode}) ===\n")
 
-    # Load and validate inputs
-    # In sample mode, Phase 2 outputs are in OUTPUT_DIR (written by 02_run_sql.py)
-    # Episodes are in data_dir (sample dir); KPIs/shark are in OUTPUT_DIR
-    dfs = load_and_validate(OUTPUT_DIR, is_sample)
+    # Load and validate inputs.
+    # Sample mode: Phase 1+2 outputs are routed to SAMPLE_OUT_DIR (episodes_filtered
+    # from 01_subset_imdb.py, KPIs/shark from 02_run_sql.py). Full mode: OUTPUT_DIR.
+    in_dir = SAMPLE_OUT_DIR if is_sample else OUTPUT_DIR
+    dfs = load_and_validate(in_dir, is_sample)
     ep_df = dfs["episodes_filtered"]
     kpi_df = dfs["agg_season_kpis"]
     shark_df = dfs["shark_jump_results"]
     dim_df = dfs["dim_show_category"]
-
-    # But episodes_filtered should come from the same place 02_run_sql reads from
-    # For sample mode, 02_run_sql.py reads from SAMPLE_DIR but writes KPIs to OUTPUT_DIR
-    # The episodes_filtered.csv in OUTPUT_DIR is written by 01_subset_imdb.py
-    # Both modes: all Phase 1+2 outputs are in OUTPUT_DIR
 
     wb = Workbook()
 
