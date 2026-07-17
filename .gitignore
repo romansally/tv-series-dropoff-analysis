@@ -26,6 +26,9 @@ venv/
 .vscode/settings.json
 .idea/
 
+# Tableau workbooks (local development)
+tableau/
+
 # QA workbooks (may contain real IMDb-derived data)
 excel/qa_reconciliation*.xlsx
 
