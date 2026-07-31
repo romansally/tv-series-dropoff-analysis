@@ -2,7 +2,7 @@
 **Project:** TV Series Drop-off Analysis ("Jump the Shark")
 **Precedence:** `CLAUDE.md` > `docs/PROJECT_CONTEXT.md`. Where older PROJECT_CONTEXT wording sounds interpretive, this spec uses the stricter current rules: neutral language, no causal claims, no metric recomputation.
 **Status:** Pre-build gates passed (schema, reference values, S1/S2 rolling verified). Build one data source → 9 worksheets → 1 dashboard → publish.
-**Repo home:** `docs/PHASE4_TILE_SPEC.md`
+**Repo home:** `docs/PHASE4_TILE_SPEC_v2.md`
 
 ---
 
